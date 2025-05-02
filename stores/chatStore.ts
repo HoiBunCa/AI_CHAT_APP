@@ -30,7 +30,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
   initializeChat: (character: Character) => {
     const geminiChat = new GeminiChat(character);
-    const chatId = `chat_${Date.now()}`;
+    const chatId = `chat_character_${character.id}`;
     set({ geminiChat, messages: [], error: null, chatId });
   },
 

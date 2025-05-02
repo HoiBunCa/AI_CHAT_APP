@@ -48,7 +48,7 @@ export default function ChatScreen() {
     }
 
     return () => {
-      clearChat();
+      // clearChat();
     };
   }, [characterId]);
 
