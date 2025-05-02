@@ -1,5 +1,7 @@
 import { create } from 'zustand';
-import { GeminiChat, Character } from '@/lib/gemini';
+import { GeminiChat, Character } from '../lib/gemini';
+import { database } from '../lib/firebase';
+import { ref, push, remove } from "firebase/database";
 
 export interface Message {
   id: string;
@@ -13,6 +15,7 @@ interface ChatStore {
   isLoading: boolean;
   error: string | null;
   geminiChat: GeminiChat | null;
+  chatId: string | null;
   initializeChat: (character: Character) => void;
   sendMessage: (content: string) => Promise<void>;
   clearChat: () => void;
@@ -23,15 +26,17 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   isLoading: false,
   error: null,
   geminiChat: null,
+  chatId: null,
 
   initializeChat: (character: Character) => {
     const geminiChat = new GeminiChat(character);
-    set({ geminiChat, messages: [], error: null });
+    const chatId = `chat_${Date.now()}`;
+    set({ geminiChat, messages: [], error: null, chatId });
   },
 
   sendMessage: async (content: string) => {
-    const { geminiChat } = get();
-    if (!geminiChat) {
+    const { geminiChat, chatId } = get();
+    if (!geminiChat || !chatId) {
       set({ error: 'Chat not initialized' });
       return;
     }
@@ -53,8 +58,12 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     }));
 
     try {
+      // Save user message to Firebase
+      const chatRef = ref(database, `chats/${chatId}/messages`);
+      push(chatRef, userMessage);
+
       const response = await geminiChat.sendMessage(content);
-      
+
       const aiMessage: Message = {
         id: `msg_${Date.now() + 1}`,
         content: response,
@@ -64,6 +73,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
           minute: '2-digit'
         }),
       };
+
+      // Save AI message to Firebase
+      push(chatRef, aiMessage);
 
       set((state) => ({
         messages: [...state.messages, aiMessage],
@@ -78,6 +90,11 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
 
   clearChat: () => {
-    set({ messages: [], error: null, geminiChat: null });
+    const { chatId } = get();
+    if (chatId) {
+      const chatRef = ref(database, `chats/${chatId}`);
+      remove(chatRef);
+    }
+    set({ messages: [], error: null, geminiChat: null, chatId: null });
   },
 }));
