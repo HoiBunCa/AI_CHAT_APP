@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View, Image, Text } from 'react-native';
+import { StyleSheet, View, Text, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
@@ -10,46 +10,33 @@ export default function SplashScreen() {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      router.replace('/(onboarding)/welcome');
+      router.replace('/(tabs)/characters');
     }, 2000);
-
     return () => clearTimeout(timeout);
   }, [router]);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Animated.View 
-        entering={FadeIn.duration(1000)}
-        exiting={FadeOut.duration(500)}
-        style={styles.content}
-      >
-        <Image 
-          source={{ uri: 'https://images.pexels.com/photos/3784424/pexels-photo-3784424.jpeg?auto=compress&cs=tinysrgb&w=800' }}
-          style={styles.logo}
-        />
-        <Text style={[styles.title, { color: theme.primary }]}>AI Chat</Text>
-        <Text style={[styles.subtitle, { color: theme.secondaryText }]}>
-          Connect with AI companions
-        </Text>
-      </Animated.View>
-    </View>
+    <ImageBackground
+      source={require('../../assets/images/smart.jpg')}
+      style={styles.backgroundImage}
+      resizeMode="cover"
+    >
+      
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  backgroundImage: {
     flex: 1,
-    alignItems: 'center',
+    width: '100%',
+    height: '100%',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
     alignItems: 'center',
-  },
-  logo: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    marginBottom: 24,
+    paddingHorizontal: 24,
   },
   title: {
     fontFamily: 'Inter-Bold',
@@ -59,5 +46,6 @@ const styles = StyleSheet.create({
   subtitle: {
     fontFamily: 'Inter-Regular',
     fontSize: 16,
+    textAlign: 'center',
   },
 });

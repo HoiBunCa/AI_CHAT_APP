@@ -6,46 +6,40 @@ import { useRouter } from 'expo-router';
 import { getCharacters, Character } from '@/data/characters';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
+interface Character {
+  id: string;
+  name: string;
+  age: number;
+  personality: string;
+  description: string;
+  imageUrl: string;
+  color: string;
+  isLocked?: boolean;
+  interactionCount: number;
+}
+
 interface CharacterCardProps {
   item: Character;
-  index: number;
   onPress: (character: Character) => void;
   theme: any;
 }
 
-const CharacterCard: React.FC<CharacterCardProps> = ({ item, index, onPress, theme }) => (
+const CharacterCard: React.FC<CharacterCardProps> = ({ item, onPress, theme }) => (
   <Animated.View
-    entering={FadeInUp.duration(400).delay(index * 100)}
-    style={[
-      styles.card,
-      {
-        backgroundColor: theme.card,
-        borderColor: item.color + '40',
-      }
-    ]}
+    entering={FadeInUp.duration(400)}
+    style={[styles.itemContainer, { backgroundColor: theme.card, borderColor: item.color + '40' }]}
   >
-    <TouchableOpacity style={styles.cardContent} onPress={() => onPress(item)} activeOpacity={0.9}>
-      <Image source={{ uri: item.imageUrl }} style={styles.avatar} />
-      <View style={styles.infoContainer}>
-        <View style={styles.nameAgeContainer}>
-          <Text style={[styles.name, { color: theme.text }]}>{item.name}</Text>
-          <Text style={[styles.age, { color: theme.secondaryText }]}>{item.age}</Text>
-        </View>
-        <Text style={[styles.description, { color: theme.secondaryText }]} numberOfLines={2} ellipsizeMode="tail">
-          {item.description}
-        </Text>
-      </View>
-      <View style={styles.interactionInfo}>
-        <View style={styles.interactionItem}>
-          <Text style={[styles.interactionCount, { color: item.color }]}>{item.interactionCount}</Text>
-        </View>
-        {!item.isLocked && (
-          <View style={styles.interactionItem}>
-            <MessageCircle size={16} color={theme.secondaryText} />
-          </View>
-        )}
+    <TouchableOpacity style={styles.item} onPress={() => onPress(item)} activeOpacity={0.9}>
+      <Image source={{ uri: item.imageUrl }} style={styles.itemAvatar} />
+      <Text style={[styles.itemName, { color: theme.text }]}>{item.name}, {item.age}</Text>
+      <Text style={[styles.itemDescription, { color: theme.secondaryText }]} numberOfLines={2} ellipsizeMode="tail">
+        {item.description}
+      </Text>
+      <View style={styles.itemInteraction}>
+        <Text style={[styles.itemInteractionCount, { color: item.color }]}>{item.interactionCount}</Text>
+        {!item.isLocked && <MessageCircle size={16} color={theme.secondaryText} />}
         {item.isLocked && (
-          <View style={[styles.lockBadge, { backgroundColor: theme.border }]}>
+          <View style={[styles.itemLockBadge, { backgroundColor: theme.border }]}>
             <Lock size={16} color={theme.secondaryText} />
           </View>
         )}
@@ -84,9 +78,9 @@ export default function CharactersScreen() {
     if (activeCategory === 'All') {
       setFilteredCharacters(characters);
     } else {
-      // In a real app, you might have a 'category' property in your Character type
-      // and filter based on that. For now, we'll just show all.
-      setFilteredCharacters(characters);
+      // Giả sử Character có thuộc tính 'category'
+      const filtered = characters.filter(char => char.personality.toLowerCase() === activeCategory.toLowerCase());
+      setFilteredCharacters(filtered);
     }
   }, [activeCategory, characters]);
 
@@ -101,30 +95,6 @@ export default function CharactersScreen() {
   const handleCategoryPress = (category: string) => {
     setActiveCategory(category);
   };
-
-  const renderCharacter = ({ item }: { item: Character }) => (
-    <Animated.View
-      entering={FadeInUp.duration(400)}
-      style={[styles.itemContainer, { backgroundColor: theme.card, borderColor: item.color + '40' }]}
-    >
-      <TouchableOpacity style={styles.item} onPress={() => handleCharacterPress(item)} activeOpacity={0.9}>
-        <Image source={{ uri: item.imageUrl }} style={styles.itemAvatar} />
-        <Text style={[styles.itemName, { color: theme.text }]}>{item.name}, {item.age}</Text>
-        <Text style={[styles.itemDescription, { color: theme.secondaryText }]} numberOfLines={2} ellipsizeMode="tail">
-          {item.description}
-        </Text>
-        <View style={styles.itemInteraction}>
-          <Text style={[styles.itemInteractionCount, { color: item.color }]}>{item.interactionCount}</Text>
-          {!item.isLocked && <MessageCircle size={16} color={theme.secondaryText} />}
-          {item.isLocked && (
-            <View style={[styles.itemLockBadge, { backgroundColor: theme.border }]}>
-              <Lock size={16} color={theme.secondaryText} />
-            </View>
-          )}
-        </View>
-      </TouchableOpacity>
-    </Animated.View>
-  );
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -162,7 +132,7 @@ export default function CharactersScreen() {
 
       <FlatList
         data={filteredCharacters}
-        renderItem={renderCharacter}
+        renderItem={({ item }) => <CharacterCard item={item} onPress={handleCharacterPress} theme={theme} />}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         numColumns={2}

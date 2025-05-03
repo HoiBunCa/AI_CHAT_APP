@@ -49,7 +49,7 @@ const ModernCreateAIChatbotScreen = () => {
 
   return (
     <ImageBackground
-      source={require('../../assets/images/aaa.png')}
+      source={require('../../assets/images/smart.jpg')}
       style={styles.backgroundImage}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>

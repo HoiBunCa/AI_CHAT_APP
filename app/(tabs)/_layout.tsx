@@ -1,7 +1,8 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { useTheme } from '@/context/ThemeContext';
-import { MessageSquare, User, Settings } from 'lucide-react-native';
+import { MessageSquare, Users, Settings, UserPlus } from 'lucide-react-native';
+
 
 export default function TabLayout() {
   const { theme, isDark } = useTheme();
@@ -10,10 +11,11 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarShowLabel: false,
         tabBarStyle: {
           backgroundColor: theme.background,
           borderTopColor: theme.border,
-          height: 88,
+          height: 62,
           paddingBottom: 32,
           paddingTop: 12,
         },
@@ -31,7 +33,7 @@ export default function TabLayout() {
         options={{
           
           tabBarIcon: ({ color, size }) => (
-            <User size={size} color={color} />
+            <Users size={size} color={color} />
           ),
         }}
       />
@@ -41,7 +43,7 @@ export default function TabLayout() {
         options={{
           
           tabBarIcon: ({ color, size }) => (
-            <User size={size} color={color} />
+            <UserPlus size={size} color={color} />
           ),
         }}
       />
