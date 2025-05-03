@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getDatabase } from "firebase/database";
+import { getDatabase, ref, remove } from 'firebase/database';
 
 const firebaseConfig = {
   apiKey: "AIzaSyB1827uYTOf6TPxHBjgOQyrDaftW9SRvrY",
@@ -18,4 +18,4 @@ const app = initializeApp(firebaseConfig);
 // Initialize Realtime Database and get a reference to the service
 const database = getDatabase(app);
 
-export { database };
+export { database, ref, remove };

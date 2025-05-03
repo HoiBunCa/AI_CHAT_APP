@@ -17,6 +17,7 @@ import { getCharacters } from '@/data/characters';
 import { getRecentChats } from '@/data/chats';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
+import { database, ref, remove  } from '../../lib/firebase';
 
 interface Character {
   id: string;
@@ -58,8 +59,11 @@ export default function ChatsScreen() {
     router.push(`/chat/new?characterId=${characterId}`);
   };
 
-  const handleDeleteChat = (chatId: string) => {
+  const handleDeleteChat = (characterId: string, chatId: string) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    const chatRef = ref(database, `/chats/chat_character_${characterId}`);
+    console.log('Deleting chat:', chatRef);
+    remove(chatRef);
     setRecentChats(prevChats => prevChats.filter(chat => chat.id !== chatId));
   };
 
@@ -77,7 +81,7 @@ export default function ChatsScreen() {
   const renderChat = ({ item }: { item: Chat }) => {
     const renderRightActions = () => (
 
-      <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteChat(item.id)}>
+      <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteChat(item.characterId, item.id)}>
         <Text style={styles.deleteText}>🗑️</Text>
       </TouchableOpacity>
       
