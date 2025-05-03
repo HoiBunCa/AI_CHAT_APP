@@ -10,7 +10,8 @@ export default function WelcomeScreen() {
   const { theme } = useTheme();
 
   const handleStart = () => {
-    router.replace('/(onboarding)/character-select');
+    // router.replace('/(onboarding)/character-select');
+    router.replace('/(tabs)');
   };
 
   return (

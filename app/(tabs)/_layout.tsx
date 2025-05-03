@@ -27,20 +27,20 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Chats',
-          tabBarIcon: ({ color, size }) => (
-            <MessageSquare size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="characters"
         options={{
           title: 'Characters',
           tabBarIcon: ({ color, size }) => (
             <User size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Chats',
+          tabBarIcon: ({ color, size }) => (
+            <MessageSquare size={size} color={color} />
           ),
         }}
       />

@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  LayoutAnimation,
+  UIManager,
+  Platform,
+} from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { Plus, Star } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { getCharacters } from '@/data/characters';
 import { getRecentChats } from '@/data/chats';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
 
 interface Character {
   id: string;
@@ -28,10 +39,15 @@ export default function ChatsScreen() {
   const router = useRouter();
   const [characters, setCharacters] = useState<Character[]>([]);
   const [recentChats, setRecentChats] = useState<Chat[]>([]);
+  const [isSwiping, setIsSwiping] = useState(false);
 
   useEffect(() => {
-    setCharacters(getCharacters().slice(0, 4));
+    setCharacters(getCharacters().slice(0, 10));
     setRecentChats(getRecentChats());
+
+    if (Platform.OS === 'android') {
+      UIManager.setLayoutAnimationEnabledExperimental?.(true);
+    }
   }, []);
 
   const handleOpenChat = (chatId: string, characterId: string) => {
@@ -42,14 +58,14 @@ export default function ChatsScreen() {
     router.push(`/chat/new?characterId=${characterId}`);
   };
 
+  const handleDeleteChat = (chatId: string) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setRecentChats(prevChats => prevChats.filter(chat => chat.id !== chatId));
+  };
+
   const renderCharacter = ({ item, index }: { item: Character; index: number }) => (
-    <Animated.View
-      entering={FadeIn.duration(400).delay(index * 100)}
-    >
-      <TouchableOpacity
-        style={styles.characterItem}
-        onPress={() => handleNewChat(item.id)}
-      >
+    <Animated.View entering={FadeIn.duration(400).delay(index * 100)}>
+      <TouchableOpacity style={styles.characterItem} onPress={() => handleNewChat(item.id)}>
         <Image source={{ uri: item.imageUrl }} style={styles.characterAvatar} />
         <Text style={[styles.characterName, { color: theme.text }]} numberOfLines={1}>
           {item.name}
@@ -58,76 +74,94 @@ export default function ChatsScreen() {
     </Animated.View>
   );
 
-  const renderChat = ({ item }: { item: Chat }) => (
-    <TouchableOpacity
-      style={[styles.chatItem, { borderBottomColor: theme.border }]}
-      onPress={() => handleOpenChat(item.id, item.characterId)}
-    >
-      <Image source={{ uri: item.characterImage }} style={styles.chatAvatar} />
-      {item.unread && <View style={[styles.unreadBadge, { backgroundColor: theme.primary }]} />}
-      <View style={styles.chatInfo}>
-        <View style={styles.chatHeader}>
-          <Text style={[styles.chatName, { color: theme.text }]}>{item.characterName}</Text>
-          <Text style={[styles.chatTime, { color: theme.secondaryText }]}>
-            {item.lastMessageTime}
-          </Text>
-        </View>
-        <Text
-          style={[
-            styles.chatMessage,
-            { color: item.unread ? theme.text : theme.secondaryText },
-          ]}
-          numberOfLines={1}
+  const renderChat = ({ item }: { item: Chat }) => {
+    const renderRightActions = () => (
+
+      <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteChat(item.id)}>
+        <Text style={styles.deleteText}>🗑️</Text>
+      </TouchableOpacity>
+      
+    );
+
+    return (
+      <Swipeable 
+        onSwipeableWillOpen={() => setIsSwiping(true)}
+        onSwipeableClose={() => setIsSwiping(false)}
+        renderRightActions={renderRightActions}>
+        <TouchableOpacity
+          disabled={isSwiping}
+          style={[styles.chatItem, { borderBottomColor: theme.border }]}
+          onPress={() => handleOpenChat(item.id, item.characterId)}
         >
-          {item.lastMessage}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
+          <Image source={{ uri: item.characterImage }} style={styles.chatAvatar} />
+          {item.unread && <View style={[styles.unreadBadge, { backgroundColor: theme.primary }]} />}
+          <View style={styles.chatInfo}>
+            <View style={styles.chatHeader}>
+              <Text style={[styles.chatName, { color: theme.text }]}>{item.characterName}</Text>
+              <Text style={[styles.chatTime, { color: theme.secondaryText }]}>
+                {item.lastMessageTime}
+              </Text>
+            </View>
+            <Text
+              style={[
+                styles.chatMessage,
+                { color: item.unread ? theme.text : theme.secondaryText },
+              ]}
+              numberOfLines={1}
+            >
+              {item.lastMessage}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      </Swipeable>
+    );
+  };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: theme.text }]}>AI Chat</Text>
-        <TouchableOpacity 
-          style={[styles.premiumButton, { backgroundColor: theme.accent + '20' }]}
-          onPress={() => {}}
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: theme.text }]}>AI Chat</Text>
+          <TouchableOpacity
+            style={[styles.premiumButton, { backgroundColor: theme.accent + '20' }]}
+            onPress={() => {}}
+          >
+            <Star size={16} color={theme.accent} />
+            <Text style={[styles.premiumText, { color: theme.accent }]}>Premium</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.charactersSection}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Quick Chat</Text>
+          <FlatList
+            data={characters}
+            renderItem={renderCharacter}
+            keyExtractor={(item) => item.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.charactersList}
+          />
+        </View>
+
+        <View style={styles.chatsSection}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Recent Chats</Text>
+          <FlatList
+            data={recentChats}
+            renderItem={renderChat}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.chatsList}
+          />
+        </View>
+
+        <TouchableOpacity
+          style={[styles.fabButton, { backgroundColor: theme.primary }]}
+          onPress={() => router.push('/characters')}
         >
-          <Star size={16} color={theme.accent} />
-          <Text style={[styles.premiumText, { color: theme.accent }]}>Premium</Text>
+          <Plus size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
-
-      <View style={styles.charactersSection}>
-        <Text style={[styles.sectionTitle, { color: theme.text }]}>Quick Chat</Text>
-        <FlatList
-          data={characters}
-          renderItem={renderCharacter}
-          keyExtractor={(item) => item.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.charactersList}
-        />
-      </View>
-
-      <View style={styles.chatsSection}>
-        <Text style={[styles.sectionTitle, { color: theme.text }]}>Recent Chats</Text>
-        <FlatList
-          data={recentChats}
-          renderItem={renderChat}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.chatsList}
-        />
-      </View>
-
-      <TouchableOpacity
-        style={[styles.fabButton, { backgroundColor: theme.primary }]}
-        onPress={() => router.push('/characters')}
-      >
-        <Plus size={24} color="#FFFFFF" />
-      </TouchableOpacity>
-    </View>
+    </GestureHandlerRootView>
   );
 }
 
@@ -250,5 +284,23 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
+  },
+  swipeActionsContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    paddingRight: 0, // hoặc 0 nếu muốn sát hẳn
+  },
+  deleteButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    height: '100%',
+    borderRadius: 10,
+  },
+  deleteText: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: 'white',
   },
 });
