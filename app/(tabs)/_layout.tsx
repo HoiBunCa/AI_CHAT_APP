@@ -29,7 +29,17 @@ export default function TabLayout() {
       <Tabs.Screen
         name="characters"
         options={{
-          title: 'Characters',
+          
+          tabBarIcon: ({ color, size }) => (
+            <User size={size} color={color} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="create-character"
+        options={{
+          
           tabBarIcon: ({ color, size }) => (
             <User size={size} color={color} />
           ),
