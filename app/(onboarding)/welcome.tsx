@@ -11,7 +11,7 @@ export default function WelcomeScreen() {
 
   const handleStart = () => {
     // router.replace('/(onboarding)/character-select');
-    router.replace('/(tabs)');
+    router.replace('/(tabs)/characters');
   };
 
   return (
