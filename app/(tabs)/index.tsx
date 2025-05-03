@@ -9,6 +9,7 @@ import {
   LayoutAnimation,
   UIManager,
   Platform,
+  RefreshControl,
 } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { Plus, Star } from 'lucide-react-native';
@@ -17,7 +18,7 @@ import { getCharacters } from '@/data/characters';
 import { getRecentChats } from '@/data/chats';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
-import { database, ref, remove  } from '../../lib/firebase';
+import { database, ref, remove } from '../../lib/firebase';
 
 interface Character {
   id: string;
@@ -41,6 +42,7 @@ export default function ChatsScreen() {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [recentChats, setRecentChats] = useState<Chat[]>([]);
   const [isSwiping, setIsSwiping] = useState(false);
+  const [refreshing, setRefreshing] = useState(false); // New state for refresh control
 
   useEffect(() => {
     setCharacters(getCharacters().slice(0, 10));
@@ -50,6 +52,14 @@ export default function ChatsScreen() {
       UIManager.setLayoutAnimationEnabledExperimental?.(true);
     }
   }, []);
+
+  // Function to handle refreshing
+  const onRefresh = async () => {
+    setRefreshing(true);
+    // Simulate an API call to refresh the chats data (replace with your own data fetching logic)
+    setRecentChats(getRecentChats());
+    setRefreshing(false);
+  };
 
   const handleOpenChat = (chatId: string, characterId: string) => {
     router.push(`/chat/${chatId}?characterId=${characterId}`);
@@ -65,6 +75,7 @@ export default function ChatsScreen() {
     console.log('Deleting chat:', chatRef);
     remove(chatRef);
     setRecentChats(prevChats => prevChats.filter(chat => chat.id !== chatId));
+    setIsSwiping(false); 
   };
 
   const renderCharacter = ({ item, index }: { item: Character; index: number }) => (
@@ -80,11 +91,9 @@ export default function ChatsScreen() {
 
   const renderChat = ({ item }: { item: Chat }) => {
     const renderRightActions = () => (
-
       <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteChat(item.characterId, item.id)}>
         <Text style={styles.deleteText}>🗑️</Text>
       </TouchableOpacity>
-      
     );
 
     return (
@@ -155,6 +164,13 @@ export default function ChatsScreen() {
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.chatsList}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[theme.primary]} // You can customize the color here
+              />
+            }
           />
         </View>
 
@@ -288,12 +304,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-  },
-  swipeActionsContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-    paddingRight: 0, // hoặc 0 nếu muốn sát hẳn
   },
   deleteButton: {
     justifyContent: 'center',
