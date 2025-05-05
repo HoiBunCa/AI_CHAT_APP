@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, FlatList, TouchableOpacity, Image, ScrollView }
 import { useTheme } from '@/context/ThemeContext';
 import { Lock, MessageCircle } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { getCharacters, fetchCharacters, Character } from '@/data/characters';
+import { fetchCharacters, Character } from '@/data/characters';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 interface Character {
@@ -14,6 +14,7 @@ interface Character {
   description: string;
   imageUrl: string;
   color: string;
+  category: string;
   isLocked?: boolean;
   interactionCount: number;
 }
@@ -72,26 +73,22 @@ export default function CharactersScreen() {
     const fetchData = async () => {
       const allCharacters = await fetchCharacters();
       setCharacters(allCharacters);
-      // setFilteredCharacters(allCharacters);
     };
 
     fetchData();
   }, []);
 
-
   useEffect(() => {
     if (activeCategory === 'All') {
       setFilteredCharacters(characters);
     } else {
-      // Giả sử Character có thuộc tính 'category'
-      const filtered = characters.filter(char => char.personality.toLowerCase() === activeCategory.toLowerCase());
+      const filtered = characters.filter(char => char.category.toLowerCase() === activeCategory.toLowerCase());
       setFilteredCharacters(filtered);
     }
   }, [activeCategory, characters]);
 
   const handleCharacterPress = (character: Character) => {
     if (character.isLocked) {
-      // Optionally show a premium upgrade modal here
       return;
     }
     router.push(`/chat/new?characterId=${character.id}`);
@@ -131,7 +128,6 @@ export default function CharactersScreen() {
             isActive={activeCategory === 'Cool'}
             onPress={() => handleCategoryPress('Cool')}
           />
-          {/* Add more categories as needed */}
         </ScrollView>
       </View>
 
@@ -174,7 +170,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   activeCategoryButton: {
-    backgroundColor: '#FF6B6B', // Example active color
+    backgroundColor: '#FF6B6B',
   },
   categoryText: {
     fontFamily: 'Inter-Medium',

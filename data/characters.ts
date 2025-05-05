@@ -9,6 +9,7 @@ export interface Character {
   description: string;
   isLocked?: boolean;
   systemPrompt: string;
+  category: string;
 }
 
 export async function getCharacterById(id: string): Promise<Character | undefined> {
@@ -30,7 +31,7 @@ export async function getCharacterById(id: string): Promise<Character | undefine
 export async function fetchCharacters(): Promise<Character[]> {
   const { data, error } = await supabase
     .from('CHARACTERS')
-    .select('*');
+    .select('*').order('id');
   
   if (error) {
     console.error("Error fetching characters:", error);
