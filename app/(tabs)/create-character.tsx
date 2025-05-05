@@ -1,310 +1,296 @@
-import React, { useState } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
-  ImageBackground,
-} from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import Slider from '@react-native-community/slider';
-import Icon from 'react-native-vector-icons/Feather';
+import React, { useState, useRef } from 'react';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Dimensions, Image } from 'react-native';
+
+const { width } = Dimensions.get('window');
+
+const OPTIONS_PER_ROW = 2;
+
+const selectionSteps = [
+  {
+    label: 'Choose Ethnicity',
+    options: [
+      {
+        label: 'Black',
+        image:
+          'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/495363443_1370486387491923_3893902468700398482_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=AwUfc5mph_0Q7kNvwGJ8a8Y&_nc_oc=AdkPRzDIt2r65PqAyS3ysSVaW9RWsSNAfvG2buMt1immBpL5j7_PL9mCM1UIsmDGqc0&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=pgjPX5kfjNFSIIZd4MsJhA&oh=00_AfH5Dgcu2rfPB3GpZnBanxnAZ6ipvPLMGTuFj2krBm6w7w&oe=681B6E10',
+      },
+      { label: 'Asian', image: 'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/495363443_1370486387491923_3893902468700398482_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=AwUfc5mph_0Q7kNvwGJ8a8Y&_nc_oc=AdkPRzDIt2r65PqAyS3ysSVaW9RWsSNAfvG2buMt1immBpL5j7_PL9mCM1UIsmDGqc0&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=lQXAg0AHP9B7IdQd6BAeWQ&oh=00_AfFIX5qQFN9M4dJIDDBY5bf-9srMPGTprbLGh7BhQ9LX7A&oe=681B6E10' },
+      { label: 'Caucasian', image: 'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/495363443_1370486387491923_3893902468700398482_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=AwUfc5mph_0Q7kNvwGJ8a8Y&_nc_oc=AdkPRzDIt2r65PqAyS3ysSVaW9RWsSNAfvG2buMt1immBpL5j7_PL9mCM1UIsmDGqc0&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=lQXAg0AHP9B7IdQd6BAeWQ&oh=00_AfFIX5qQFN9M4dJIDDBY5bf-9srMPGTprbLGh7BhQ9LX7A&oe=681B6E10' },
+      { label: 'Latina', image: 'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/495363443_1370486387491923_3893902468700398482_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=AwUfc5mph_0Q7kNvwGJ8a8Y&_nc_oc=AdkPRzDIt2r65PqAyS3ysSVaW9RWsSNAfvG2buMt1immBpL5j7_PL9mCM1UIsmDGqc0&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=lQXAg0AHP9B7IdQd6BAeWQ&oh=00_AfFIX5qQFN9M4dJIDDBY5bf-9srMPGTprbLGh7BhQ9LX7A&oe=681B6E10' },
+      { label: 'Arab', image: 'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/495363443_1370486387491923_3893902468700398482_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=AwUfc5mph_0Q7kNvwGJ8a8Y&_nc_oc=AdkPRzDIt2r65PqAyS3ysSVaW9RWsSNAfvG2buMt1immBpL5j7_PL9mCM1UIsmDGqc0&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=lQXAg0AHP9B7IdQd6BAeWQ&oh=00_AfFIX5qQFN9M4dJIDDBY5bf-9srMPGTprbLGh7BhQ9LX7A&oe=681B6E10' },
+    ],
+    selected: null,
+  },
+  {
+    label: 'Choose Hair Style',
+    options: [
+      { label: 'Straight', image: 'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/494498288_1369044844302744_8290071782940337506_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=sT9qfJnEH50Q7kNvwEqcLXh&_nc_oc=AdnP5U8wxxQvRgtWkBd6fAL2SzZ1szQ1dWSxbQv7K7TR1_twDYe5HXFL-QJGxGkQGJI&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=yiiD7_Btyr4k5DcyLP5dhw&oh=00_AfFKuxm2Erls5UcHiucjvLO3AS-pFindOCujFy1dMD0pxg&oe=681B70E4' },
+      { label: 'Wavy', image: 'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/494498288_1369044844302744_8290071782940337506_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=sT9qfJnEH50Q7kNvwEqcLXh&_nc_oc=AdnP5U8wxxQvRgtWkBd6fAL2SzZ1szQ1dWSxbQv7K7TR1_twDYe5HXFL-QJGxGkQGJI&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=yiiD7_Btyr4k5DcyLP5dhw&oh=00_AfFKuxm2Erls5UcHiucjvLO3AS-pFindOCujFy1dMD0pxg&oe=681B70E4' },
+      { label: 'Curly', image: 'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/494498288_1369044844302744_8290071782940337506_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=sT9qfJnEH50Q7kNvwEqcLXh&_nc_oc=AdnP5U8wxxQvRgtWkBd6fAL2SzZ1szQ1dWSxbQv7K7TR1_twDYe5HXFL-QJGxGkQGJI&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=yiiD7_Btyr4k5DcyLP5dhw&oh=00_AfFKuxm2Erls5UcHiucjvLO3AS-pFindOCujFy1dMD0pxg&oe=681B70E4' },
+      { label: 'Long', image: 'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/494498288_1369044844302744_8290071782940337506_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=sT9qfJnEH50Q7kNvwEqcLXh&_nc_oc=AdnP5U8wxxQvRgtWkBd6fAL2SzZ1szQ1dWSxbQv7K7TR1_twDYe5HXFL-QJGxGkQGJI&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=yiiD7_Btyr4k5DcyLP5dhw&oh=00_AfFKuxm2Erls5UcHiucjvLO3AS-pFindOCujFy1dMD0pxg&oe=681B70E4' },
+      { label: 'Short', image: 'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/494498288_1369044844302744_8290071782940337506_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=sT9qfJnEH50Q7kNvwEqcLXh&_nc_oc=AdnP5U8wxxQvRgtWkBd6fAL2SzZ1szQ1dWSxbQv7K7TR1_twDYe5HXFL-QJGxGkQGJI&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=yiiD7_Btyr4k5DcyLP5dhw&oh=00_AfFKuxm2Erls5UcHiucjvLO3AS-pFindOCujFy1dMD0pxg&oe=681B70E4' },
+    ],
+    selected: null,
+  },
+  {
+    label: 'Choose Body Type',
+    options: [
+      { label: 'Slim', image: 'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/494539511_1369044847636077_7366713261351980106_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=xlOKaRMRf7kQ7kNvwGdQ9GK&_nc_oc=AdkBauKTxIBPbBcI9aJTRLPr9IM-abJQCme99g90_NdTxDIJ001oKpz9qXy1zM7rXKM&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=yiiD7_Btyr4k5DcyLP5dhw&oh=00_AfESz5qw8jaJe1HGz_llMIboR_Oimq60ZI69lK7xQxORxw&oe=681B7FCA' },
+      { label: 'Athletic', image: 'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/494498288_1369044844302744_8290071782940337506_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=sT9qfJnEH50Q7kNvwEqcLXh&_nc_oc=AdnP5U8wxxQvRgtWkBd6fAL2SzZ1szQ1dWSxbQv7K7TR1_twDYe5HXFL-QJGxGkQGJI&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=yiiD7_Btyr4k5DcyLP5dhw&oh=00_AfFKuxm2Erls5UcHiucjvLO3AS-pFindOCujFy1dMD0pxg&oe=681B70E4' },
+      { label: 'Curvy', image: 'https://scontent-hkg1-2.xx.fbcdn.net/v/t39.30808-6/495023141_1369044950969400_9057380419579977448_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=6C5Rip-JNYYQ7kNvwH4oVNd&_nc_oc=Adk90WuJa6lBUdiB_21wfdR4BjdjLOuOoAJfjwciDesson4dbZZadZZfLlqYt6aVFz4&_nc_zt=23&_nc_ht=scontent-hkg1-2.xx&_nc_gid=V55GUshfms9JfYXM0hRijA&oh=00_AfF7nHJTbJ3rJTGwYzMcgTRmeJ57ny9o1FBk-kOPcQoZjw&oe=681B8563' },
+      { label: 'Tall', image: 'https://scontent-hkg1-2.xx.fbcdn.net/v/t39.30808-6/495023141_1369044950969400_9057380419579977448_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=6C5Rip-JNYYQ7kNvwH4oVNd&_nc_oc=Adk90WuJa6lBUdiB_21wfdR4BjdjLOuOoAJfjwciDesson4dbZZadZZfLlqYt6aVFz4&_nc_zt=23&_nc_ht=scontent-hkg1-2.xx&_nc_gid=V55GUshfms9JfYXM0hRijA&oh=00_AfF7nHJTbJ3rJTGwYzMcgTRmeJ57ny9o1FBk-kOPcQoZjw&oe=681B8563' },
+      { label: 'Petite', image: 'https://scontent-hkg1-2.xx.fbcdn.net/v/t39.30808-6/495023141_1369044950969400_9057380419579977448_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=6C5Rip-JNYYQ7kNvwH4oVNd&_nc_oc=Adk90WuJa6lBUdiB_21wfdR4BjdjLOuOoAJfjwciDesson4dbZZadZZfLlqYt6aVFz4&_nc_zt=23&_nc_ht=scontent-hkg1-2.xx&_nc_gid=V55GUshfms9JfYXM0hRijA&oh=00_AfF7nHJTbJ3rJTGwYzMcgTRmeJ57ny9o1FBk-kOPcQoZjw&oe=681B8563' },
+    ],
+    selected: null,
+  },
+];
 
 const ModernCreateAIChatbotScreen = () => {
-  const [name, setName] = useState('');
-  const [personality, setPersonality] = useState('');
-  const [tone, setTone] = useState('');
-  const [creativityLevel, setCreativityLevel] = useState(0.5);
-  const [knowledgeDomains, setKnowledgeDomains] = useState([]);
-  const [isCreating, setIsCreating] = useState(false);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const scrollViewRef = useRef();
+  const [selectionStates, setSelectionStates] = useState(
+    selectionSteps.map(step => ({ selected: step.selected }))
+  );
 
-  const personalities = ['Thân thiện', 'Hài hước', 'Nghiêm túc', 'Sáng tạo', 'Tò mò'];
-  const tones = ['Trang trọng', 'Thân mật', 'Hóm hỉnh', 'Khuyến khích', 'Đặt câu hỏi'];
-  const availableDomains = ['Lịch sử', 'Khoa học', 'Văn học', 'Công nghệ', 'Nghệ thuật'];
+  const currentStep = selectionSteps[currentStepIndex];
 
-  const handleToggleDomain = (domain) => {
-    if (knowledgeDomains.includes(domain)) {
-      setKnowledgeDomains(knowledgeDomains.filter((d) => d !== domain));
-    } else {
-      setKnowledgeDomains([...knowledgeDomains, domain]);
+  const handleBack = () => {
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex(currentStepIndex - 1);
+      scrollViewRef.current?.scrollTo({ x: (currentStepIndex - 1) * width, animated: true });
     }
   };
 
-  const handleCreateAI = () => {
-    setIsCreating(true);
-    console.log('Đang tạo AI với các thuộc tính:', {
-      name,
-      personality,
-      tone,
-      creativityLevel,
-      knowledgeDomains,
-    });
-    setTimeout(() => {
-      setIsCreating(false);
-      alert('AI của bạn đã được tạo!');
-    }, 2000);
+  const handleNext = () => {
+    if (currentStepIndex < selectionSteps.length - 1) {
+      setCurrentStepIndex(currentStepIndex + 1);
+      scrollViewRef.current?.scrollTo({ x: (currentStepIndex + 1) * width, animated: true });
+    } else {
+      console.log('Selections:', selectionStates);
+    }
   };
 
-  return (
-    <ImageBackground
-      source={require('../../assets/images/smart.jpg')}
-      style={styles.backgroundImage}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.card}>
-          <Text style={styles.title}>Tạo AI Cá Nhân</Text>
+  const handleOptionSelect = (option) => {
+    const updatedSelectionStates = [...selectionStates];
+    updatedSelectionStates[currentStepIndex] = { selected: option };
+    setSelectionStates(updatedSelectionStates);
+  };
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Tên AI (tùy chọn):</Text>
-            <View style={styles.inputContainer}>
-              <Icon name="user" size={20} color="#888" style={styles.inputIcon} />
-              <TextInput
-                style={styles.textInput}
-                placeholder="Nhập tên AI"
-                value={name}
-                onChangeText={setName}
-                placeholderTextColor="#aaa"
-              />
-            </View>
-          </View>
+  const handleScroll = (event) => {
+    const contentOffsetX = event.nativeEvent.contentOffset.x;
+    let newIndex = Math.round(contentOffsetX / width);
+    newIndex = Math.max(0, Math.min(newIndex, selectionSteps.length - 1));
+    if (newIndex !== currentStepIndex) {
+      setCurrentStepIndex(newIndex);
+    }
+  };
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Tính cách:</Text>
-            <View style={styles.pickerContainer}>
-              <Icon name="smile" size={20} color="#888" style={styles.pickerIcon} />
-              <Picker
-                selectedValue={personality}
-                onValueChange={(value) => setPersonality(value)}
-                style={styles.picker}
-                dropdownIconColor="#007bff"
-              >
-                <Picker.Item label="Chọn tính cách" value="" />
-                {personalities.map((p) => (
-                  <Picker.Item key={p} label={p} value={p} />
-                ))}
-              </Picker>
-            </View>
-          </View>
+  const renderOptions = (options, selectedOption) => {
+    const numRows = Math.ceil(options.length / OPTIONS_PER_ROW);
+    const rows = Array.from({ length: numRows }, (_, rowIndex) =>
+      options.slice(rowIndex * OPTIONS_PER_ROW, (rowIndex + 1) * OPTIONS_PER_ROW)
+    );
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Văn phong:</Text>
-            <View style={styles.pickerContainer}>
-              <Icon name="edit" size={20} color="#888" style={styles.pickerIcon} />
-              <Picker
-                selectedValue={tone}
-                onValueChange={(value) => setTone(value)}
-                style={styles.picker}
-                dropdownIconColor="#007bff"
-              >
-                <Picker.Item label="Chọn văn phong" value="" />
-                {tones.map((t) => (
-                  <Picker.Item key={t} label={t} value={t} />
-                ))}
-              </Picker>
-            </View>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Mức độ sáng tạo:</Text>
-            <View style={styles.sliderContainer}>
-              <Icon name="sliders" size={20} color="#888" style={styles.sliderIcon} />
-              <Slider
-                minimumValue={0}
-                maximumValue={1}
-                step={0.1}
-                value={creativityLevel}
-                onValueChange={setCreativityLevel}
-                style={styles.slider}
-                thumbTintColor="#007bff"
-                minimumTrackTintColor="#007bff"
-                maximumTrackTintColor="#ccc"
-              />
-              <Text style={styles.sliderValue}>
-                {Math.round(creativityLevel * 100)}%
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Lĩnh vực kiến thức:</Text>
-            <View style={styles.domainList}>
-              {availableDomains.map((domain) => (
-                <TouchableOpacity
-                  key={domain}
-                  style={[
-                    styles.checkboxItem,
-                    knowledgeDomains.includes(domain) && styles.checkboxItemSelected,
-                  ]}
-                  onPress={() => handleToggleDomain(domain)}
-                >
-                  <Icon
-                    name={knowledgeDomains.includes(domain) ? 'check-square' : 'square'}
-                    size={20}
-                    color={knowledgeDomains.includes(domain) ? '#fff' : '#888'}
-                    style={styles.checkboxIcon}
-                  />
-                  <Text
-                    style={[
-                      styles.checkboxText,
-                      knowledgeDomains.includes(domain) && styles.checkboxTextSelected,
-                    ]}
-                  >
-                    {domain}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
+    return rows.map((row, rowIndex) => (
+      <View key={rowIndex} style={styles.row}>
+        {row.map((option) => (
           <TouchableOpacity
-            style={[styles.createButton, isCreating && styles.creatingButton]}
-            onPress={handleCreateAI}
-            disabled={isCreating}
+            key={option.label}
+            style={styles.optionButton}
+            onPress={() => handleOptionSelect(option)}
           >
-            <Text style={styles.createButtonText}>
-              {isCreating ? 'Đang tạo...' : 'Tạo AI'}
-            </Text>
+            <View
+              style={[
+                styles.imageWrapper,
+                selectedOption?.label === option.label && styles.selectedOption,
+              ]}
+            >
+              <Image source={{ uri: option.image }} style={styles.optionImage} />
+              <View style={styles.overlay}>
+                <Text
+                  style={[
+                    styles.optionText,
+                    selectedOption?.label === option.label && styles.selectedOptionText,
+                  ]}
+                >
+                  {option.label}
+                </Text>
+              </View>
+            </View>
           </TouchableOpacity>
-        </View>
+        ))}
+      </View>
+    ));
+  };
+
+  const renderProgressBar = () => (
+    <View style={styles.progressBarContainer}>
+      {selectionSteps.map((_, index) => (
+        <View
+          key={index}
+          style={[
+            styles.progressBarSegment,
+            index < currentStepIndex && styles.progressBarCompleted,
+            index === currentStepIndex && styles.progressBarCurrent,
+          ]}
+        />
+      ))}
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      {currentStepIndex > 0 && (
+        <TouchableOpacity style={styles.backButtonContainer} onPress={handleBack}>
+          <Text style={styles.backButton}>{'<'}</Text>
+        </TouchableOpacity>
+      )}
+
+      {renderProgressBar()}
+
+      <Text style={styles.title}>{currentStep.label}</Text>
+
+      <ScrollView
+        ref={scrollViewRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        contentContainerStyle={{ width: selectionSteps.length * width }}
+      >
+        {selectionSteps.map((step, index) => (
+          <ScrollView
+            key={index}
+            style={styles.stepContent}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            showsVerticalScrollIndicator={false}
+          >
+            {renderOptions(step.options, selectionStates[index]?.selected)}
+          </ScrollView>
+        ))}
       </ScrollView>
-    </ImageBackground>
+
+      {currentStepIndex === selectionSteps.length - 1 && (
+        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+          <Text style={styles.nextButtonText}>NEXT</Text>
+        </TouchableOpacity>
+      )}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  backgroundImage: {
+  container: {
     flex: 1,
-    resizeMode: 'cover',
+    backgroundColor: '#fff',
   },
-  scrollContent: {
+  backButtonContainer: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    zIndex: 10,
+    padding: 10,
+  },
+  backButton: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  progressBarContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
-    paddingBottom: 40,
+    marginTop: 50,
+    marginBottom: 10,
   },
-  card: {
-    backgroundColor: 'rgba(255,255,255,0.7)',
-    borderRadius: 16,
-    padding: 20,
-    width: '100%',
-    maxWidth: 500,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 4,
+  progressBarSegment: {
+    width: 20,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
+    backgroundColor: '#3a3a3c',
+  },
+  progressBarCompleted: {
+    backgroundColor: '#e91e63',
+    opacity: 0.4,
+  },
+  progressBarCurrent: {
+    backgroundColor: '#e91e63',
+    opacity: 1,
   },
   title: {
-    fontSize: 26,
+    color: '#000',
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 24,
     textAlign: 'center',
-    color: '#333',
-  },
-  inputGroup: {
     marginBottom: 20,
   },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#555',
+  stepContent: {
+    flex: 1,
+    width: width,
+    paddingHorizontal: 20,
   },
-  inputContainer: {
+  row: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+  optionButton: {
+    width: (width - 50) / 2,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
+  },
+  selectedOption: {
+    borderColor: '#e91e63',
+    borderWidth: 3,
     borderRadius: 10,
-    paddingHorizontal: 12,
-    backgroundColor: '#fff',
   },
-  inputIcon: {
-    marginRight: 10,
+  optionImage: {
+    width: '100%',
+    height: undefined,
+    aspectRatio: 1, // Tỉ lệ 1:1 (vuông)
+    borderRadius: 8,
+    resizeMode: 'cover',
   },
-  textInput: {
-    flex: 1,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#333',
-  },
-  pickerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    backgroundColor: '#fff',
-    paddingHorizontal: 12,
-  },
-  pickerIcon: {
-    marginRight: 10,
-  },
-  picker: {
-    flex: 1,
-    color: '#333',
-  },
-  sliderContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  sliderIcon: {
-    marginRight: 10,
-  },
-  slider: {
-    flex: 1,
-    height: 40,
-  },
-  sliderValue: {
-    marginLeft: 10,
-    fontSize: 16,
-    color: '#555',
-  },
-  domainList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  checkboxItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 20,
-    marginBottom: 10,
-    marginRight: 10,
-    backgroundColor: '#fff',
-  },
-  checkboxItemSelected: {
-    backgroundColor: '#007bff',
-    borderColor: '#007bff',
-  },
-  checkboxIcon: {
-    marginRight: 6,
-  },
-  checkboxText: {
-    fontSize: 14,
-    color: '#333',
-  },
-  checkboxTextSelected: {
+  optionText: {
     color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
   },
-  createButton: {
-    backgroundColor: '#007bff',
-    paddingVertical: 16,
+  selectedOptionText: {
+    fontWeight: 'bold',
+  },
+  nextButton: {
+    backgroundColor: '#e91e63',
+    paddingVertical: 15,
     borderRadius: 10,
+    margin: 20,
     alignItems: 'center',
-    marginTop: 20,
   },
-  creatingButton: {
-    backgroundColor: '#6c757d',
-  },
-  createButtonText: {
-    color: 'white',
+  nextButtonText: {
+    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  imageWrapper: {
+    position: 'relative',
+    width: (width - 50) / 2,
+    height: (width - 50) / 2,
+    marginBottom: 8,
+    overflow: 'hidden',
+    borderRadius: 10,
+  },
+  overlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingVertical: 6,
+    paddingHorizontal: 4,
+    
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
   },
 });
 
