@@ -40,7 +40,7 @@ export default function ChatScreen() {
 
   useEffect(() => {
     if (!characterId) return;
-  
+
     const fetchCharacter = async () => {
       const selectedCharacter = await getCharacterById(characterId);
       if (selectedCharacter) {
@@ -48,9 +48,8 @@ export default function ChatScreen() {
         initializeChat(selectedCharacter);
       }
     };
-  
+
     fetchCharacter();
-  
     return () => {
       // clearChat();
     };
@@ -76,44 +75,48 @@ export default function ChatScreen() {
       entering={SlideInRight.duration(300).delay(index === messages.length - 1 ? 0 : 0)}
       style={[
         styles.messageBubble,
-        item.sender === 'user'
-          ? [styles.userBubble, { backgroundColor: theme.messageBubbleUser }]
-          : [styles.aiBubble, { backgroundColor: theme.messageBubbleAI }],
+        item.sender === 'user' ? styles.userBubble : styles.aiBubble,
       ]}
     >
       {item.sender === 'ai' && character && (
         <Image source={{ uri: character.imageUrl }} style={styles.avatarSmall} />
       )}
-      <View style={{ flexShrink: 1 }}>
-        <View style={item.sender === 'user' ? styles.userMessageContent : styles.aiMessageContent}>
-          <Text
-            style={[
-              styles.messageText,
-              {
-                color:
-                  item.sender === 'user'
-                    ? theme.messageBubbleUserText
-                    : theme.messageBubbleAIText,
-              },
-            ]}
-          >
-            {item.content}
-          </Text>
-          <Text
-            style={[
-              styles.messageTime,
-              {
-                color:
-                  item.sender === 'user'
-                    ? theme.messageBubbleUserText + '90'
-                    : theme.secondaryText,
-              },
-            ]}
-          >
-            {item.timestamp}
-          </Text>
+      <BlurView
+        intensity={40}
+        tint={isDark ? 'dark' : 'light'}
+        style={[styles.blurMessageBackground, { flexShrink: 1 }]}
+      >
+        <View style={{ flexShrink: 1, flexGrow: 1 }}>
+          <View style={item.sender === 'user' ? styles.userMessageContent : styles.aiMessageContent}>
+            <Text
+              style={[
+                styles.messageText,
+                {
+                  color:
+                    item.sender === 'user'
+                      ? theme.messageBubbleUserText
+                      : theme.messageBubbleAIText,
+                },
+              ]}
+            >
+              {item.content}
+            </Text>
+            <Text
+              style={[
+                styles.messageTime,
+                {
+                  color:
+                    item.sender === 'user'
+                      ? theme.messageBubbleUserText + '90'
+                      : theme.secondaryText,
+                },
+              ]}
+            >
+              {item.timestamp}
+            </Text>
+          </View>
         </View>
-      </View>
+      </BlurView>
     </Animated.View>
   );
 
@@ -125,7 +128,7 @@ export default function ChatScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <ArrowLeft size={24} color={theme.text} />
+            <ArrowLeft size={20} color={theme.text} />
           </TouchableOpacity>
 
           {character && (
@@ -144,12 +147,10 @@ export default function ChatScreen() {
         </View>
       </View>
 
-      {/* 👇 Chat background image now corresponds to the character */}
       <ImageBackground
         source={{ uri: character?.imageUrl }}
         resizeMode="cover"
         style={styles.chatBackground}
-   
       >
         <FlatList
           ref={flatListRef}
@@ -239,7 +240,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 60,
+    paddingTop: 15,
     paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.05)',
@@ -247,14 +248,21 @@ const styles = StyleSheet.create({
   headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 19,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    marginRight: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   characterInfo: {
     flexDirection: 'row',
@@ -273,6 +281,7 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 14,
     marginRight: 8,
+    marginTop: 4,
   },
   characterName: {
     fontFamily: 'Inter-SemiBold',
@@ -290,21 +299,28 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
   },
   messageBubble: {
-    maxWidth: '80%',
-    marginVertical: 8,
-    padding: 12,
-    borderRadius: 16,
+    maxWidth: '75%',
+    marginVertical: 6,
     flexDirection: 'row',
     alignItems: 'flex-start',
+    flexShrink: 1,
+    flexWrap: 'wrap',
+    paddingRight: 4,
+  },
+  blurMessageBackground: {
+    padding: 12,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(255,255,255,0.05)',
   },
   userBubble: {
     alignSelf: 'flex-end',
-    backgroundColor: '#007AFF',
+    marginRight: -5,
     borderBottomRightRadius: 0,
   },
   aiBubble: {
     alignSelf: 'flex-start',
-    backgroundColor: '#F1F0F0',
+    marginLeft: -5,
     borderBottomLeftRadius: 0,
   },
   userMessageContent: {
@@ -317,11 +333,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     fontSize: 16,
     lineHeight: 22,
+    flexShrink: 1,
+    flexWrap: 'wrap',
   },
   messageTime: {
     fontFamily: 'Inter-Regular',
     fontSize: 12,
     marginTop: 4,
+    flexWrap: 'wrap',
   },
   inputContainer: {
     borderTopWidth: 1,
