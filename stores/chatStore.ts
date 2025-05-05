@@ -8,6 +8,7 @@ export interface Message {
   content: string;
   sender: 'user' | 'ai';
   timestamp: string;
+  type?: 'text' | 'image';
 }
 
 interface ChatStore {

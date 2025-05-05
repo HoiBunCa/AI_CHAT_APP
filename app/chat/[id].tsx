@@ -20,6 +20,9 @@ import Animated, { FadeIn, SlideInRight } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { useChatStore } from '@/stores/chatStore';
 import type { Message } from '@/stores/chatStore';
+import { generateImage } from '@/lib/openai';
+import { ref, push, set as firebaseSet } from 'firebase/database';
+import { database } from '@/lib/firebase';
 
 export default function ChatScreen() {
   const { theme, isDark } = useTheme();
@@ -57,11 +60,75 @@ export default function ChatScreen() {
 
   const handleSend = async () => {
     if (message.trim() === '') return;
-    const currentMessage = message;
+  
+    const currentMessage = message.trim();
     setMessage('');
-    await sendMessage(currentMessage);
+  
+    const { chatId } = useChatStore.getState();
+    if (!chatId) {
+      console.warn('Chat not initialized');
+      return;
+    }
+  
+    const chatRef = ref(database, `chats/chat_character_${chatId}/messages`);
+    const timestamp = new Date().toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  
+    if (currentMessage.toLowerCase().startsWith('image:')) {
+      const prompt = currentMessage.slice(6).trim();
+  
+      // 1. Push user message
+      const userMsgRef = push(chatRef);
+      const userMessage: Message = {
+        id: userMsgRef.key!,
+        content: currentMessage,
+        sender: 'user',
+        timestamp,
+      };
+  
+      useChatStore.setState((state) => ({
+        messages: [...state.messages, userMessage],
+        isLoading: true,
+        error: null,
+      }));
+      await firebaseSet(userMsgRef, userMessage);
+  
+      try {
+        // 2. Generate image from prompt
+        const imageUrl = await generateImage(prompt);
+  
+        // 3. Push AI image message
+        const aiMsgRef = push(chatRef);
+        const aiImageMessage: Message = {
+          id: aiMsgRef.key!,
+          content: imageUrl,
+          sender: 'ai',
+          timestamp: new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+          type: 'image',
+        };
+  
+        useChatStore.setState((state) => ({
+          messages: [...state.messages, aiImageMessage],
+          isLoading: false,
+        }));
+        await firebaseSet(aiMsgRef, aiImageMessage);
+      } catch (err) {
+        useChatStore.setState({
+          isLoading: false,
+          error: 'Failed to generate image',
+        });
+      }
+    } else {
+      // Xử lý message thường
+      await useChatStore.getState().sendMessage(currentMessage);
+    }
   };
-
+  
   useEffect(() => {
     if (messages.length > 0) {
       setTimeout(() => {
@@ -81,6 +148,7 @@ export default function ChatScreen() {
       {item.sender === 'ai' && character && (
         <Image source={{ uri: character.imageUrl }} style={styles.avatarSmall} />
       )}
+  
       <BlurView
         intensity={40}
         tint={isDark ? 'dark' : 'light'}
@@ -88,19 +156,27 @@ export default function ChatScreen() {
       >
         <View style={{ flexShrink: 1, flexGrow: 1 }}>
           <View style={item.sender === 'user' ? styles.userMessageContent : styles.aiMessageContent}>
-            <Text
-              style={[
-                styles.messageText,
-                {
-                  color:
-                    item.sender === 'user'
-                      ? theme.messageBubbleUserText
-                      : theme.messageBubbleAIText,
-                },
-              ]}
-            >
-              {item.content}
-            </Text>
+            {item.type === 'image' ? (
+              <Image
+                source={{ uri: item.content }}
+                style={{ width: 220, height: 160, borderRadius: 12 }}
+                resizeMode="cover"
+              />
+            ) : (
+              <Text
+                style={[
+                  styles.messageText,
+                  {
+                    color:
+                      item.sender === 'user'
+                        ? theme.messageBubbleUserText
+                        : theme.messageBubbleAIText,
+                  },
+                ]}
+              >
+                {item.content}
+              </Text>
+            )}
             <Text
               style={[
                 styles.messageTime,
@@ -119,6 +195,7 @@ export default function ChatScreen() {
       </BlurView>
     </Animated.View>
   );
+  
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
