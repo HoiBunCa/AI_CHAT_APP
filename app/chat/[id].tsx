@@ -39,14 +39,18 @@ export default function ChatScreen() {
   } = useChatStore();
 
   useEffect(() => {
-    if (characterId) {
-      const selectedCharacter = getCharacterById(characterId);
+    if (!characterId) return;
+  
+    const fetchCharacter = async () => {
+      const selectedCharacter = await getCharacterById(characterId);
       if (selectedCharacter) {
         setCharacter(selectedCharacter);
         initializeChat(selectedCharacter);
       }
-    }
-
+    };
+  
+    fetchCharacter();
+  
     return () => {
       // clearChat();
     };
@@ -142,10 +146,10 @@ export default function ChatScreen() {
 
       {/* 👇 Chat background image now corresponds to the character */}
       <ImageBackground
-        source={{ uri: character?.imageUrl || 'https://images.pexels.com/photos/3756985/pexels-photo-3756985.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2' }}
+        source={{ uri: character?.imageUrl }}
         resizeMode="cover"
         style={styles.chatBackground}
-        imageStyle={{ opacity: 0.25 }}
+   
       >
         <FlatList
           ref={flatListRef}

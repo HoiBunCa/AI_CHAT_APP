@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, FlatList, TouchableOpacity, Image, ScrollView }
 import { useTheme } from '@/context/ThemeContext';
 import { Lock, MessageCircle } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { getCharacters, Character } from '@/data/characters';
+import { getCharacters, fetchCharacters, Character } from '@/data/characters';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 interface Character {
@@ -69,10 +69,15 @@ export default function CharactersScreen() {
   const [filteredCharacters, setFilteredCharacters] = useState<Character[]>([]);
 
   useEffect(() => {
-    const allCharacters = getCharacters();
-    setCharacters(allCharacters);
-    setFilteredCharacters(allCharacters);
+    const fetchData = async () => {
+      const allCharacters = await fetchCharacters();
+      setCharacters(allCharacters);
+      // setFilteredCharacters(allCharacters);
+    };
+
+    fetchData();
   }, []);
+
 
   useEffect(() => {
     if (activeCategory === 'All') {
