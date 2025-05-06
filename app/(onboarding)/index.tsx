@@ -10,10 +10,11 @@ export default function SplashScreen() {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      router.replace('/(tabs)/characters');
+      router.push('/(onboarding)/login'); // ✅ dùng push để animation hoạt động
     }, 2000);
+
     return () => clearTimeout(timeout);
-  }, [router]);
+  }, []);
 
   return (
     <ImageBackground
@@ -21,7 +22,16 @@ export default function SplashScreen() {
       style={styles.backgroundImage}
       resizeMode="cover"
     >
-      
+      <Animated.View
+        entering={FadeIn.duration(800)}
+        exiting={FadeOut.duration(300)}
+        style={styles.content}
+      >
+        <Text style={[styles.title, { color: "white" }]}>Chào mừng bạn!</Text>
+        <Text style={[styles.subtitle, { color: "white" }]}>
+          Đang khởi động ứng dụng...
+        </Text>
+      </Animated.View>
     </ImageBackground>
   );
 }
