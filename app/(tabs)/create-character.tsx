@@ -43,6 +43,30 @@ const selectionSteps = [
     ],
     selected: null,
   },
+  {
+    label: 'Choose Personality',
+    options: [
+      { label: 'Cheerful', image: 'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/494539511_1369044847636077_7366713261351980106_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=xlOKaRMRf7kQ7kNvwGdQ9GK&_nc_oc=AdkBauKTxIBPbBcI9aJTRLPr9IM-abJQCme99g90_NdTxDIJ001oKpz9qXy1zM7rXKM&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=yiiD7_Btyr4k5DcyLP5dhw&oh=00_AfESz5qw8jaJe1HGz_llMIboR_Oimq60ZI69lK7xQxORxw&oe=681B7FCA' },
+      { label: 'Thoughtful', image: 'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/494498288_1369044844302744_8290071782940337506_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=sT9qfJnEH50Q7kNvwEqcLXh&_nc_oc=AdnP5U8wxxQvRgtWkBd6fAL2SzZ1szQ1dWSxbQv7K7TR1_twDYe5HXFL-QJGxGkQGJI&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=yiiD7_Btyr4k5DcyLP5dhw&oh=00_AfFKuxm2Erls5UcHiucjvLO3AS-pFindOCujFy1dMD0pxg&oe=681B70E4' },
+      { label: 'Witty', image: 'https://scontent-hkg1-2.xx.fbcdn.net/v/t39.30808-6/495023141_1369044950969400_9057380419579977448_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=6C5Rip-JNYYQ7kNvwH4oVNd&_nc_oc=Adk90WuJa6lBUdiB_21wfdR4BjdjLOuOoAJfjwciDesson4dbZZadZZfLlqYt6aVFz4&_nc_zt=23&_nc_ht=scontent-hkg1-2.xx&_nc_gid=V55GUshfms9JfYXM0hRijA&oh=00_AfF7nHJTbJ3rJTGwYzMcgTRmeJ57ny9o1FBk-kOPcQoZjw&oe=681B8563' },
+      { label: 'Creative', image: 'https://scontent-hkg1-2.xx.fbcdn.net/v/t39.30808-6/495023141_1369044950969400_9057380419579977448_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=6C5Rip-JNYYQ7kNvwH4oVNd&_nc_oc=Adk90WuJa6lBUdiB_21wfdR4BjdjLOuOoAJfjwciDesson4dbZZadZZfLlqYt6aVFz4&_nc_zt=23&_nc_ht=scontent-hkg1-2.xx&_nc_gid=V55GUshfms9JfYXM0hRijA&oh=00_AfF7nHJTbJ3rJTGwYzMcgTRmeJ57ny9o1FBk-kOPcQoZjw&oe=681B8563' },
+      { label: 'Adventurous', image: 'https://scontent-hkg1-2.xx.fbcdn.net/v/t39.30808-6/495023141_1369044950969400_9057380419579977448_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=6C5Rip-JNYYQ7kNvwH4oVNd&_nc_oc=Adk90WuJa6lBUdiB_21wfdR4BjdjLOuOoAJfjwciDesson4dbZZadZZfLlqYt6aVFz4&_nc_zt=23&_nc_ht=scontent-hkg1-2.xx&_nc_gid=V55GUshfms9JfYXM0hRijA&oh=00_AfF7nHJTbJ3rJTGwYzMcgTRmeJ57ny9o1FBk-kOPcQoZjw&oe=681B8563' },
+      { label: 'Calm', image: 'https://scontent-hkg1-2.xx.fbcdn.net/v/t39.30808-6/495023141_1369044950969400_9057380419579977448_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=6C5Rip-JNYYQ7kNvwH4oVNd&_nc_oc=Adk90WuJa6lBUdiB_21wfdR4BjdjLOuOoAJfjwciDesson4dbZZadZZfLlqYt6aVFz4&_nc_zt=23&_nc_ht=scontent-hkg1-2.xx&_nc_gid=V55GUshfms9JfYXM0hRijA&oh=00_AfF7nHJTbJ3rJTGwYzMcgTRmeJ57ny9o1FBk-kOPcQoZjw&oe=681B8563' },
+    ],
+    selected: null,
+  },
+  {
+    label: 'Choose Style',
+    options: [
+      { label: 'Outgoing', image: 'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/494539511_1369044847636077_7366713261351980106_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=xlOKaRMRf7kQ7kNvwGdQ9GK&_nc_oc=AdkBauKTxIBPbBcI9aJTRLPr9IM-abJQCme99g90_NdTxDIJ001oKpz9qXy1zM7rXKM&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=yiiD7_Btyr4k5DcyLP5dhw&oh=00_AfESz5qw8jaJe1HGz_llMIboR_Oimq60ZI69lK7xQxORxw&oe=681B7FCA' },
+      { label: 'Caring', image: 'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/494498288_1369044844302744_8290071782940337506_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=sT9qfJnEH50Q7kNvwEqcLXh&_nc_oc=AdnP5U8wxxQvRgtWkBd6fAL2SzZ1szQ1dWSxbQv7K7TR1_twDYe5HXFL-QJGxGkQGJI&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=yiiD7_Btyr4k5DcyLP5dhw&oh=00_AfFKuxm2Erls5UcHiucjvLO3AS-pFindOCujFy1dMD0pxg&oe=681B70E4' },
+      { label: 'Intelligent', image: 'https://scontent-hkg1-2.xx.fbcdn.net/v/t39.30808-6/495023141_1369044950969400_9057380419579977448_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=6C5Rip-JNYYQ7kNvwH4oVNd&_nc_oc=Adk90WuJa6lBUdiB_21wfdR4BjdjLOuOoAJfjwciDesson4dbZZadZZfLlqYt6aVFz4&_nc_zt=23&_nc_ht=scontent-hkg1-2.xx&_nc_gid=V55GUshfms9JfYXM0hRijA&oh=00_AfF7nHJTbJ3rJTGwYzMcgTRmeJ57ny9o1FBk-kOPcQoZjw&oe=681B8563' },
+      { label: 'Artistic', image: 'https://scontent-hkg1-2.xx.fbcdn.net/v/t39.30808-6/495023141_1369044950969400_9057380419579977448_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=6C5Rip-JNYYQ7kNvwH4oVNd&_nc_oc=Adk90WuJa6lBUdiB_21wfdR4BjdjLOuOoAJfjwciDesson4dbZZadZZfLlqYt6aVFz4&_nc_zt=23&_nc_ht=scontent-hkg1-2.xx&_nc_gid=V55GUshfms9JfYXM0hRijA&oh=00_AfF7nHJTbJ3rJTGwYzMcgTRmeJ57ny9o1FBk-kOPcQoZjw&oe=681B8563' },
+      { label: 'Bold', image: 'https://scontent-hkg1-2.xx.fbcdn.net/v/t39.30808-6/495023141_1369044950969400_9057380419579977448_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=6C5Rip-JNYYQ7kNvwH4oVNd&_nc_oc=Adk90WuJa6lBUdiB_21wfdR4BjdjLOuOoAJfjwciDesson4dbZZadZZfLlqYt6aVFz4&_nc_zt=23&_nc_ht=scontent-hkg1-2.xx&_nc_gid=V55GUshfms9JfYXM0hRijA&oh=00_AfF7nHJTbJ3rJTGwYzMcgTRmeJ57ny9o1FBk-kOPcQoZjw&oe=681B8563' },
+      { label: 'Calm & Supportive', image: 'https://scontent-hkg1-2.xx.fbcdn.net/v/t39.30808-6/495023141_1369044950969400_9057380419579977448_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=6C5Rip-JNYYQ7kNvwH4oVNd&_nc_oc=Adk90WuJa6lBUdiB_21wfdR4BjdjLOuOoAJfjwciDesson4dbZZadZZfLlqYt6aVFz4&_nc_zt=23&_nc_ht=scontent-hkg1-2.xx&_nc_gid=V55GUshfms9JfYXM0hRijA&oh=00_AfF7nHJTbJ3rJTGwYzMcgTRmeJ57ny9o1FBk-kOPcQoZjw&oe=681B8563' },
+    ],
+    selected: null,
+  },
 ];
 
 const ModernCreateAIChatbotScreen = () => {
