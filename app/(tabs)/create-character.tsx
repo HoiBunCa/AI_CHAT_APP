@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { supabase } from "@/lib/supabase";
-import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
@@ -343,11 +342,11 @@ async function create_character(attributes) {
   const attr3 = attributes[2];
   const imageLink = await generateImage(attr1, attr2, attr3);
 
-  // Lấy 3 thuộc tính tiếp theo để gọi hàm tạo bản ghi trong Supabase
+  // Lấy 3 thuộc tính tiếp theo để gọi hàm tạo bản ghi trong db 
   const attr4 = attributes[3];
   const attr5 = attributes[4];
   const attr6 = attributes[5];
-  await createRecordInSupabase(attr4, attr5, attr6, imageLink);
+  await createRecordInDatabase(attr4, attr5, attr6, imageLink);
 
   // Cập nhật giao diện hoặc chuyển sang bước tiếp theo nếu cần
   console.log('Next button clicked, record created!');
@@ -360,8 +359,8 @@ async function generateImage(attr1, attr2, attr3) {
   return `https://scontent.fhan14-4.fna.fbcdn.net/v/t39.30808-6/495343976_3101886483318579_2071644917021755021_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=OEBP95Y1wcsQ7kNvwFiw6LI&_nc_oc=AdkwoGWqC4x-3zp6dYU0xp8jAeebLKA6VvvwrxtHuOaEcROjRFO17NxmuszZNDKTlTU&_nc_zt=23&_nc_ht=scontent.fhan14-4.fna&_nc_gid=e2Ic0pRYFZj8wgCMFe2Ezg&oh=00_AfJyWRjd1KhuJ01DKo5mwV7MeC8pTtBHwjvwDhvI_Uk0Zw&oe=681F59B2`;
 }
 
-// Hàm tạo bản ghi mới trong Supabase
-async function createRecordInSupabase(attr4, attr5, attr6, imageLink) {
+// Hàm tạo bản ghi mới trong Database
+async function createRecordInDatabase(attr4, attr5, attr6, imageLink) {
 
   const personality = attr4.selected.label;
   const style = attr5.selected.label;

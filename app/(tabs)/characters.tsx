@@ -5,7 +5,6 @@ import { Lock, MessageCircle } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { fetchCharacters, Character } from '@/data/characters';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-import { supabase } from '@/lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 

@@ -11,12 +11,14 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
-import { Mail, Lock } from 'lucide-react-native';
+import { Mail, Lock, User } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 
-const backgroundImg = require('../../assets/images/smart.jpg');
+const backgroundImg = { uri: 'https://scontent-hkg1-2.xx.fbcdn.net/v/t39.30808-6/495258608_691823650214166_6027362892834059103_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=8PtLbxbQxX0Q7kNvwGvIB_D&_nc_oc=AdlvYtUuOINdDu1ymn9o-2byMQ4jie7Cj6DILxGZK7pD0ZrlWpOmdGF25ZNIju_hGC8&_nc_zt=23&_nc_ht=scontent-hkg1-2.xx&_nc_gid=XzhdF-hSuKlL39zYswg34g&oh=00_AfIGBPZkIoE9xj3u2nZcXqcZ1LBPpc2CRaZODs3sV4eAqA&oe=682009F8' };
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -31,27 +33,21 @@ export default function LoginScreen() {
     }
 
     try {
-      // Kiểm tra thông tin đăng nhập từ Supabase
       const { data, error } = await supabase
-      .from('APP_USERS')
-      .select('id, email, password')
-      .eq('email', email)
-      .eq('password', password)
-      .single();
-      console.log('data', data);
-
-
+        .from('APP_USERS')
+        .select('id, email, password')
+        .eq('email', email)
+        .eq('password', password)
+        .single();
 
       if (error) {
         Alert.alert('Đăng nhập thất bại', error.message);
         return;
       }
 
-      // Nếu đăng nhập thành công, điều hướng người dùng đến màn hình tiếp theo
       console.log('Đăng nhập thành công:', data);
       await AsyncStorage.setItem('userSession', JSON.stringify(data));
-
-      router.replace('/(tabs)/characters'); // Hoặc màn hình khác bạn muốn
+      router.replace('/(tabs)/characters');
     } catch (error) {
       console.error('Đăng nhập thất bại:', error);
       Alert.alert('Đăng nhập thất bại', 'Có lỗi xảy ra, vui lòng thử lại.');
@@ -59,65 +55,65 @@ export default function LoginScreen() {
   };
 
   return (
-    <ImageBackground
-    source={backgroundImg}
-    style={styles.backgroundImage}
-    resizeMode="cover"
-    blurRadius={0}
-  >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.container}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <ImageBackground
+        source={backgroundImg}
+        style={styles.backgroundImage}
+        resizeMode="cover"
+        blurRadius={0}
       >
-        <View style={[styles.formWrapper, { backgroundColor: isDark ? '#1E1E1ECC' : '#FFFFFFCC' }]}>
-          <Text style={[styles.title, { color: theme.text }]}>Chào mừng bạn</Text>
-          <Text style={[styles.subtitle, { color: theme.secondaryText }]}>Đăng nhập để tiếp tục</Text>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.container}
+        >
+          <View style={styles.formWrapper}>
+          <Text style={[styles.subtitle, { color: "white" }]}>Đăng nhập để tiếp tục</Text>
+            <View style={styles.inputContainer}>
+              <User color={theme.primary} size={20} />
+              <TextInput
+                style={[styles.input, { color: theme.text }]}
+                placeholder="Tài khoản"
+                placeholderTextColor={theme.secondaryText}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
 
-          <View style={styles.inputContainer}>
-            <Mail color={theme.primary} size={20} />
-            <TextInput
-              style={[styles.input, { color: theme.text }]}
-              placeholder="Email"
-              placeholderTextColor={theme.secondaryText}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
+            <View style={styles.inputContainer}>
+              <Lock color={theme.primary} size={20} />
+              <TextInput
+                style={[styles.input, { color: theme.text }]}
+                placeholder="Mật khẩu"
+                placeholderTextColor={theme.secondaryText}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+              />
+            </View>
 
-          <View style={styles.inputContainer}>
-            <Lock color={theme.primary} size={20} />
-            <TextInput
-              style={[styles.input, { color: theme.text }]}
-              placeholder="Mật khẩu"
-              placeholderTextColor={theme.secondaryText}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-          </View>
-
-          <TouchableOpacity style={styles.forgotPassword}>
-            <Text style={{ color: theme.primary, fontSize: 14 }}>Quên mật khẩu?</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: theme.primary }]}
-            onPress={handleLogin}
-          >
-            <Text style={styles.buttonText}>Đăng nhập</Text>
-          </TouchableOpacity>
-
-          <View style={styles.registerRow}>
-            <Text style={{ color: theme.text, fontSize: 14 }}>Chưa có tài khoản?</Text>
-            <TouchableOpacity>
-              <Text style={[styles.registerText, { color: theme.primary }]}> Đăng ký</Text>
+            <TouchableOpacity style={styles.forgotPassword}>
+              <Text style={{ color: theme.primary, fontSize: 14 }}>Quên mật khẩu?</Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.button, { backgroundColor: theme.primary }]}
+              onPress={handleLogin}
+            >
+              <Text style={styles.buttonText}>Đăng nhập</Text>
+            </TouchableOpacity>
+
+            <View style={styles.registerRow}>
+              <Text style={{ color: theme.text, fontSize: 14 }}>Chưa có tài khoản?</Text>
+              <TouchableOpacity>
+                <Text style={[styles.registerText, { color: theme.primary }]}> Đăng ký</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </KeyboardAvoidingView>
-    </ImageBackground>
+        </KeyboardAvoidingView>
+      </ImageBackground>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -128,20 +124,20 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    },
+  },
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-end', // 👈 đẩy form xuống dưới
     paddingHorizontal: 12,
+    paddingBottom: 132, // 👈 thêm khoảng cách với mép dưới
   },
   formWrapper: {
+    width: 300,
     marginHorizontal: 16,
     padding: 24,
-    borderRadius: 20,
-    shadowColor: '#000',
-    shadowOpacity: 0.75,
+    borderRadius: 60,
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
+    shadowRadius: 26,
     elevation: 4,
   },
   title: {
