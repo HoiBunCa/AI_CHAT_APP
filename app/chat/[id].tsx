@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   StyleSheet,
   View,
@@ -199,7 +200,7 @@ export default function ChatScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <View style={[styles.header, { backgroundColor: theme.background }]}>
+      <SafeAreaView edges={['top']} style={[styles.header, { backgroundColor: theme.background }]}>
         <View style={styles.headerContent}>
           <TouchableOpacity
             style={styles.backButton}
@@ -222,7 +223,7 @@ export default function ChatScreen() {
             </View>
           )}
         </View>
-      </View>
+      </SafeAreaView>
 
       <ImageBackground
         source={{ uri: character?.imageUrl }}
@@ -317,7 +318,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: 15,
     paddingBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(0,0,0,0.05)',
@@ -376,8 +376,8 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
   },
   messageBubble: {
-    maxWidth: '75%',
-    marginVertical: 6,
+    maxWidth: '55%',
+    marginVertical: 20,
     flexDirection: 'row',
     alignItems: 'flex-start',
     flexShrink: 1,
@@ -396,6 +396,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 0,
   },
   aiBubble: {
+    maxWidth: '75%',
     alignSelf: 'flex-start',
     marginLeft: -5,
     borderBottomLeftRadius: 0,
@@ -445,7 +446,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 12,
     marginHorizontal: 8,
     fontSize: 16,
     fontFamily: 'Inter-Regular',
