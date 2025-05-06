@@ -1,5 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { supabase } from "@/lib/supabase";
+import { create } from 'zustand';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
@@ -67,6 +70,16 @@ const selectionSteps = [
     ],
     selected: null,
   },
+  {
+    label: 'Choose Category',
+    options: [
+      { label: 'Romantic', image: 'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/494539511_1369044847636077_7366713261351980106_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=xlOKaRMRf7kQ7kNvwGdQ9GK&_nc_oc=AdkBauKTxIBPbBcI9aJTRLPr9IM-abJQCme99g90_NdTxDIJ001oKpz9qXy1zM7rXKM&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=yiiD7_Btyr4k5DcyLP5dhw&oh=00_AfESz5qw8jaJe1HGz_llMIboR_Oimq60ZI69lK7xQxORxw&oe=681B7FCA' },
+      { label: 'New', image: 'https://scontent-hkg4-1.xx.fbcdn.net/v/t39.30808-6/494498288_1369044844302744_8290071782940337506_n.jpg?stp=dst-jpg_p843x403_tt6&_nc_cat=110&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=sT9qfJnEH50Q7kNvwEqcLXh&_nc_oc=AdnP5U8wxxQvRgtWkBd6fAL2SzZ1szQ1dWSxbQv7K7TR1_twDYe5HXFL-QJGxGkQGJI&_nc_zt=23&_nc_ht=scontent-hkg4-1.xx&_nc_gid=yiiD7_Btyr4k5DcyLP5dhw&oh=00_AfFKuxm2Erls5UcHiucjvLO3AS-pFindOCujFy1dMD0pxg&oe=681B70E4' },
+      { label: 'Cool', image: 'https://scontent-hkg1-2.xx.fbcdn.net/v/t39.30808-6/495023141_1369044950969400_9057380419579977448_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=6C5Rip-JNYYQ7kNvwH4oVNd&_nc_oc=Adk90WuJa6lBUdiB_21wfdR4BjdjLOuOoAJfjwciDesson4dbZZadZZfLlqYt6aVFz4&_nc_zt=23&_nc_ht=scontent-hkg1-2.xx&_nc_gid=V55GUshfms9JfYXM0hRijA&oh=00_AfF7nHJTbJ3rJTGwYzMcgTRmeJ57ny9o1FBk-kOPcQoZjw&oe=681B8563' },
+      { label: 'Crazy', image: 'https://scontent-hkg1-2.xx.fbcdn.net/v/t39.30808-6/495023141_1369044950969400_9057380419579977448_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=6C5Rip-JNYYQ7kNvwH4oVNd&_nc_oc=Adk90WuJa6lBUdiB_21wfdR4BjdjLOuOoAJfjwciDesson4dbZZadZZfLlqYt6aVFz4&_nc_zt=23&_nc_ht=scontent-hkg1-2.xx&_nc_gid=V55GUshfms9JfYXM0hRijA&oh=00_AfF7nHJTbJ3rJTGwYzMcgTRmeJ57ny9o1FBk-kOPcQoZjw&oe=681B8563' },      
+    ],
+    selected: null,
+  },
 ];
 
 const ModernCreateAIChatbotScreen = () => {
@@ -91,6 +104,10 @@ const ModernCreateAIChatbotScreen = () => {
       scrollViewRef.current?.scrollTo({ x: (currentStepIndex + 1) * width, animated: true });
     } else {
       console.log('Selections:', selectionStates);
+      create_character(selectionStates);
+      
+
+      
     }
   };
 
@@ -317,5 +334,63 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 10,
   },
 });
+
+
+async function create_character(attributes) {
+  // Lấy 3 thuộc tính đầu tiên để gọi hàm sinh ảnh
+  const attr1 = attributes[0];
+  const attr2 = attributes[1];
+  const attr3 = attributes[2];
+  const imageLink = await generateImage(attr1, attr2, attr3);
+
+  // Lấy 3 thuộc tính tiếp theo để gọi hàm tạo bản ghi trong Supabase
+  const attr4 = attributes[3];
+  const attr5 = attributes[4];
+  const attr6 = attributes[5];
+  await createRecordInSupabase(attr4, attr5, attr6, imageLink);
+
+  // Cập nhật giao diện hoặc chuyển sang bước tiếp theo nếu cần
+  console.log('Next button clicked, record created!');
+}
+
+async function generateImage(attr1, attr2, attr3) {
+  // Gọi API sinh ảnh (Giả sử API trả về link ảnh)
+  // Ví dụ:
+  console.log('Generating image with attributes:', attr1, attr2, attr3);
+  return `https://scontent.fhan14-4.fna.fbcdn.net/v/t39.30808-6/495343976_3101886483318579_2071644917021755021_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=OEBP95Y1wcsQ7kNvwFiw6LI&_nc_oc=AdkwoGWqC4x-3zp6dYU0xp8jAeebLKA6VvvwrxtHuOaEcROjRFO17NxmuszZNDKTlTU&_nc_zt=23&_nc_ht=scontent.fhan14-4.fna&_nc_gid=e2Ic0pRYFZj8wgCMFe2Ezg&oh=00_AfJyWRjd1KhuJ01DKo5mwV7MeC8pTtBHwjvwDhvI_Uk0Zw&oe=681F59B2`;
+}
+
+// Hàm tạo bản ghi mới trong Supabase
+async function createRecordInSupabase(attr4, attr5, attr6, imageLink) {
+
+  const personality = attr4.selected.label;
+  const style = attr5.selected.label;
+  const category = attr6.selected.label;
+
+  const sessionString = await AsyncStorage.getItem('userSession');
+  if (sessionString) {
+    const session = JSON.parse(sessionString); // chuyển từ chuỗi sang object
+    const userId = session.id; // lấy id
+    console.log('User ID:', userId);
+    const { data, error } = await supabase
+    .from('CHARACTERS')
+    .insert([
+      {
+        name: "Maria",
+        imageUrl: "https://scontent.fhan14-4.fna.fbcdn.net/v/t39.30808-6/495343976_3101886483318579_2071644917021755021_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=OEBP95Y1wcsQ7kNvwFiw6LI&_nc_oc=AdkwoGWqC4x-3zp6dYU0xp8jAeebLKA6VvvwrxtHuOaEcROjRFO17NxmuszZNDKTlTU&_nc_zt=23&_nc_ht=scontent.fhan14-4.fna&_nc_gid=e2Ic0pRYFZj8wgCMFe2Ezg&oh=00_AfJyWRjd1KhuJ01DKo5mwV7MeC8pTtBHwjvwDhvI_Uk0Zw&oe=681F59B2",
+        personality: personality + " & " + style,
+        category: category,
+        created_by: userId
+      },
+    ]);
+
+    if (error) {
+      console.error('Error inserting record:', error);
+      return;
+    }
+    console.log('Record inserted successfully:', data);
+  }
+  
+}
 
 export default ModernCreateAIChatbotScreen;
