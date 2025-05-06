@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useRouter } from 'expo-router';
 import {
   View,
   Text,
@@ -12,20 +13,44 @@ import {
 } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { Mail, Lock } from 'lucide-react-native';
+import { supabase } from '@/lib/supabase';
 
 const backgroundImg = require('../../assets/images/smart.jpg');
 
 export default function LoginScreen() {
+  const router = useRouter();
   const { theme, isDark } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Thông báo', 'Vui lòng nhập đầy đủ thông tin');
       return;
     }
-    Alert.alert('Đăng nhập thành công', `Email: ${email}`);
+
+    try {
+      // Kiểm tra thông tin đăng nhập từ Supabase
+      const { data, error } = await supabase
+      .from('APP_USERS')
+      .select('id, email, password')
+      .eq('email', email)
+      .eq('password', password)
+      .single();
+      console.log('data', data);
+
+      if (error) {
+        Alert.alert('Đăng nhập thất bại', error.message);
+        return;
+      }
+
+      // Nếu đăng nhập thành công, điều hướng người dùng đến màn hình tiếp theo
+      console.log('Đăng nhập thành công:', data);
+      router.replace('/(tabs)/characters'); // Hoặc màn hình khác bạn muốn
+    } catch (error) {
+      console.error('Đăng nhập thất bại:', error);
+      Alert.alert('Đăng nhập thất bại', 'Có lỗi xảy ra, vui lòng thử lại.');
+    }
   };
 
   return (

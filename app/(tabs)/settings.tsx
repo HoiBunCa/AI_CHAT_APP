@@ -3,8 +3,11 @@ import { StyleSheet, View, Text, Switch, TouchableOpacity, ScrollView } from 're
 import { useTheme } from '@/context/ThemeContext';
 import { Moon, Sun, Star, Bell, Key, CircleHelp as HelpCircle, LogOut } from 'lucide-react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
+import { useRouter } from 'expo-router';
+
 
 export default function SettingsScreen() {
+  const router = useRouter();
   const { theme, themeMode, setThemeMode, isDark } = useTheme();
   const [notifications, setNotifications] = useState(true);
 
@@ -136,7 +139,7 @@ export default function SettingsScreen() {
             </View>,
             'Sign Out',
             null,
-            () => {},
+            () => router.replace('/(onboarding)/login'),
             600
           )}
         </View>
