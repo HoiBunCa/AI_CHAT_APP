@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
   Text,
@@ -39,6 +40,8 @@ export default function LoginScreen() {
       .single();
       console.log('data', data);
 
+
+
       if (error) {
         Alert.alert('Đăng nhập thất bại', error.message);
         return;
@@ -46,6 +49,8 @@ export default function LoginScreen() {
 
       // Nếu đăng nhập thành công, điều hướng người dùng đến màn hình tiếp theo
       console.log('Đăng nhập thành công:', data);
+      await AsyncStorage.setItem('userSession', JSON.stringify(data));
+
       router.replace('/(tabs)/characters'); // Hoặc màn hình khác bạn muốn
     } catch (error) {
       console.error('Đăng nhập thất bại:', error);

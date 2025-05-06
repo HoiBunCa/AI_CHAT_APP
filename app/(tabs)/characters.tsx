@@ -5,19 +5,9 @@ import { Lock, MessageCircle } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { fetchCharacters, Character } from '@/data/characters';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import { supabase } from '@/lib/supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-interface Character {
-  id: string;
-  name: string;
-  age: number;
-  personality: string;
-  description: string;
-  imageUrl: string;
-  color: string;
-  category: string;
-  isLocked?: boolean;
-  interactionCount: number;
-}
 
 interface CharacterCardProps {
   item: Character;
@@ -32,7 +22,7 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ item, onPress, theme }) =
   >
     <TouchableOpacity style={styles.item} onPress={() => onPress(item)} activeOpacity={0.9}>
       <Image source={{ uri: item.imageUrl }} style={styles.itemAvatar} />
-      <Text style={[styles.itemName, { color: theme.text }]}>{item.name}, {item.age}</Text>
+      <Text style={[styles.itemName, { color: theme.text }]}>{item.name}</Text>
       <Text style={[styles.itemDescription, { color: theme.secondaryText }]} numberOfLines={2} ellipsizeMode="tail">
         {item.description}
       </Text>
@@ -71,8 +61,15 @@ export default function CharactersScreen() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const allCharacters = await fetchCharacters();
+      const sessionString = await AsyncStorage.getItem('userSession');
+      if (sessionString) {
+        const session = JSON.parse(sessionString); // chuyển từ chuỗi sang object
+        const userId = session.id; // lấy id
+        console.log('User ID:', userId);
+        const allCharacters = await fetchCharacters(userId);
       setCharacters(allCharacters);
+      }
+      
     };
 
     fetchData();
