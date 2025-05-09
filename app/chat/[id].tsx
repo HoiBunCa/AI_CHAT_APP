@@ -24,11 +24,12 @@ import type { Message } from '@/stores/chatStore';
 import { generateImage } from '@/lib/openai';
 import { ref, push, set as firebaseSet } from 'firebase/database';
 import { database } from '@/lib/firebase';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function ChatScreen() {
   const { theme, isDark } = useTheme();
   const router = useRouter();
-  const { id, characterId } = useLocalSearchParams<{ id: string; characterId: string }>();
+  const { characterId } = useLocalSearchParams<{ id: string; characterId: string }>();
   const [message, setMessage] = useState('');
   const [character, setCharacter] = useState<any>(null);
   const flatListRef = useRef<FlatList>(null);
@@ -39,12 +40,10 @@ export default function ChatScreen() {
     error,
     initializeChat,
     sendMessage,
-    clearChat
   } = useChatStore();
 
   useEffect(() => {
     if (!characterId) return;
-
     const fetchCharacter = async () => {
       const selectedCharacter = await getCharacterById(characterId);
       if (selectedCharacter) {
@@ -52,35 +51,74 @@ export default function ChatScreen() {
         initializeChat(selectedCharacter);
       }
     };
-
     fetchCharacter();
-    return () => {
-      // clearChat();
-    };
   }, [characterId]);
+
+  const handlePickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.status !== 'granted') {
+      alert('Permission required to access media library');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      const selectedImage = result.assets[0];
+      const imageUrl = selectedImage.uri;
+
+      const { chatId } = useChatStore.getState();
+      if (!chatId) {
+        console.warn('Chat not initialized');
+        return;
+      }
+
+      const chatRef = ref(database, `chats/chat_character_${chatId}/messages`);
+      const timestamp = new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+      const newImageRef = push(chatRef);
+      const imageMessage: Message = {
+        id: newImageRef.key!,
+        content: imageUrl,
+        sender: 'user',
+        timestamp,
+        type: 'image',
+      };
+
+      useChatStore.setState((state) => ({
+        messages: [...state.messages, imageMessage],
+      }));
+
+      await firebaseSet(newImageRef, imageMessage);
+    }
+  };
 
   const handleSend = async () => {
     if (message.trim() === '') return;
-  
     const currentMessage = message.trim();
     setMessage('');
-  
+
     const { chatId } = useChatStore.getState();
     if (!chatId) {
       console.warn('Chat not initialized');
       return;
     }
-  
+
     const chatRef = ref(database, `chats/chat_character_${chatId}/messages`);
     const timestamp = new Date().toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
     });
-  
+
     if (currentMessage.toLowerCase().startsWith('image:')) {
       const prompt = currentMessage.slice(6).trim();
-  
-      // 1. Push user message
       const userMsgRef = push(chatRef);
       const userMessage: Message = {
         id: userMsgRef.key!,
@@ -88,19 +126,16 @@ export default function ChatScreen() {
         sender: 'user',
         timestamp,
       };
-  
+
       useChatStore.setState((state) => ({
         messages: [...state.messages, userMessage],
         isLoading: true,
         error: null,
       }));
       await firebaseSet(userMsgRef, userMessage);
-  
+
       try {
-        // 2. Generate image from prompt
         const imageUrl = await generateImage(prompt);
-  
-        // 3. Push AI image message
         const aiMsgRef = push(chatRef);
         const aiImageMessage: Message = {
           id: aiMsgRef.key!,
@@ -112,7 +147,7 @@ export default function ChatScreen() {
           }),
           type: 'image',
         };
-  
+
         useChatStore.setState((state) => ({
           messages: [...state.messages, aiImageMessage],
           isLoading: false,
@@ -125,11 +160,10 @@ export default function ChatScreen() {
         });
       }
     } else {
-      // Xử lý message thường
-      await useChatStore.getState().sendMessage(currentMessage);
+      await sendMessage(currentMessage);
     }
   };
-  
+
   useEffect(() => {
     if (messages.length > 0) {
       setTimeout(() => {
@@ -149,7 +183,7 @@ export default function ChatScreen() {
       {item.sender === 'ai' && character && (
         <Image source={{ uri: character.imageUrl }} style={styles.avatarSmall} />
       )}
-  
+
       <BlurView
         intensity={40}
         tint={isDark ? 'dark' : 'light'}
@@ -196,7 +230,6 @@ export default function ChatScreen() {
       </BlurView>
     </Animated.View>
   );
-  
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -263,7 +296,7 @@ export default function ChatScreen() {
             style={styles.blurContainer}
           >
             <View style={styles.inputRow}>
-              <TouchableOpacity style={styles.attachButton}>
+              <TouchableOpacity style={styles.attachButton} onPress={handlePickImage}>
                 <ImageIcon size={24} color={theme.secondaryText} />
               </TouchableOpacity>
 
@@ -312,6 +345,8 @@ export default function ChatScreen() {
     </View>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   container: {

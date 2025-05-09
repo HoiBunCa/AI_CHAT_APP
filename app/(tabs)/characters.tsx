@@ -26,7 +26,7 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ item, onPress, theme }) =
         {item.description}
       </Text>
       <View style={styles.itemInteraction}>
-        <Text style={[styles.itemInteractionCount, { color: item.color }]}>{item.interactionCount}</Text>
+        
         {!item.isLocked && <MessageCircle size={16} color={theme.secondaryText} />}
         {item.isLocked && (
           <View style={[styles.itemLockBadge, { backgroundColor: theme.border }]}>
