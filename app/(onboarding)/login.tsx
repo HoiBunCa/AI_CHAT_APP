@@ -14,15 +14,16 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/context/ThemeContext';
 import { Mail, Lock, User } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 
-const backgroundImg = { uri: 'https://scontent-hkg1-2.xx.fbcdn.net/v/t39.30808-6/495258608_691823650214166_6027362892834059103_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=aa7b47&_nc_ohc=8PtLbxbQxX0Q7kNvwGvIB_D&_nc_oc=AdlvYtUuOINdDu1ymn9o-2byMQ4jie7Cj6DILxGZK7pD0ZrlWpOmdGF25ZNIju_hGC8&_nc_zt=23&_nc_ht=scontent-hkg1-2.xx&_nc_gid=XzhdF-hSuKlL39zYswg34g&oh=00_AfIGBPZkIoE9xj3u2nZcXqcZ1LBPpc2CRaZODs3sV4eAqA&oe=682009F8' };
+const backgroundImg = require('../../assets/images/bg.jpg');
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { theme, isDark } = useTheme();
+  const { theme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -60,62 +61,85 @@ export default function LoginScreen() {
         source={backgroundImg}
         style={styles.backgroundImage}
         resizeMode="cover"
-        blurRadius={0}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          style={styles.container}
-        >
-          <View style={styles.formWrapper}>
-          <Text style={[styles.subtitle, { color: "white" }]}>Đăng nhập để tiếp tục</Text>
-            <View style={styles.inputContainer}>
-              <User color={theme.primary} size={20} />
-              <TextInput
-                style={[styles.input, { color: theme.text }]}
-                placeholder="Tài khoản"
-                placeholderTextColor={theme.secondaryText}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
+        <SafeAreaView style={{ flex: 1, width: '100%' }}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.container}
+          >
+            <View style={[styles.formWrapper, shadowStyle]}>
+              <Text style={[styles.subtitle, { color: 'white' }]}>
+                Đăng nhập để tiếp tục
+              </Text>
 
-            <View style={styles.inputContainer}>
-              <Lock color={theme.primary} size={20} />
-              <TextInput
-                style={[styles.input, { color: theme.text }]}
-                placeholder="Mật khẩu"
-                placeholderTextColor={theme.secondaryText}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
-            </View>
+              <View style={styles.inputContainer}>
+                <User color={theme.primary} size={20} />
+                <TextInput
+                  style={[styles.input, { color: theme.text }]}
+                  placeholder="Tài khoản"
+                  placeholderTextColor={theme.secondaryText}
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+              </View>
 
-            <TouchableOpacity style={styles.forgotPassword}>
-              <Text style={{ color: theme.primary, fontSize: 14 }}>Quên mật khẩu?</Text>
-            </TouchableOpacity>
+              <View style={styles.inputContainer}>
+                <Lock color={theme.primary} size={20} />
+                <TextInput
+                  style={[styles.input, { color: theme.text }]}
+                  placeholder="Mật khẩu"
+                  placeholderTextColor={theme.secondaryText}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                />
+              </View>
 
-            <TouchableOpacity
-              style={[styles.button, { backgroundColor: theme.primary }]}
-              onPress={handleLogin}
-            >
-              <Text style={styles.buttonText}>Đăng nhập</Text>
-            </TouchableOpacity>
-
-            <View style={styles.registerRow}>
-              <Text style={{ color: theme.text, fontSize: 14 }}>Chưa có tài khoản?</Text>
-              <TouchableOpacity>
-                <Text style={[styles.registerText, { color: theme.primary }]}> Đăng ký</Text>
+              <TouchableOpacity style={styles.forgotPassword}>
+                <Text style={{ color: theme.primary, fontSize: 14 }}>
+                  Quên mật khẩu?
+                </Text>
               </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: theme.primary }]}
+                onPress={handleLogin}
+              >
+                <Text style={styles.buttonText}>Đăng nhập</Text>
+              </TouchableOpacity>
+
+              <View style={styles.registerRow}>
+                <Text style={{ color: theme.text, fontSize: 14 }}>
+                  Chưa có tài khoản?
+                </Text>
+                <TouchableOpacity>
+                  <Text style={[styles.registerText, { color: theme.primary }]}>
+                    {' '}
+                    Đăng ký
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        </KeyboardAvoidingView>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
       </ImageBackground>
     </TouchableWithoutFeedback>
   );
 }
+
+const shadowStyle = Platform.select({
+  ios: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+  },
+  android: {
+    elevation: 5,
+  },
+});
 
 const styles = StyleSheet.create({
   backgroundImage: {
@@ -123,22 +147,21 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     justifyContent: 'center',
-    alignItems: 'center',
   },
   container: {
     flex: 1,
-    justifyContent: 'flex-end', // 👈 đẩy form xuống dưới
+    justifyContent: 'flex-end',
     paddingHorizontal: 12,
-    paddingBottom: 132, // 👈 thêm khoảng cách với mép dưới
+    paddingBottom: Platform.select({
+      ios: 132,
+      android: 80,
+    }),
   },
   formWrapper: {
-    width: 300,
-    marginHorizontal: 16,
+    width: '80%',
+    alignSelf: 'center',
     padding: 24,
-    borderRadius: 60,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 26,
-    elevation: 4,
+    borderRadius: 60,    
   },
   title: {
     fontSize: 26,
